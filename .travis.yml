@@ -12,4 +12,3 @@ matrix:
   fast_finish: true
 script:
   - make
-  - make utest
