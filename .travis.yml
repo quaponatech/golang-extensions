@@ -1,7 +1,6 @@
 sudo: false
 language: go
 go:
-  - 1.7.x
   - 1.8.x
   - master
 os:
@@ -12,4 +11,5 @@ matrix:
     - go: master
   fast_finish: true
 script:
-  - make all utest
+  - make
+  - make utest
