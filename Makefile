@@ -14,7 +14,7 @@ endif
 
 iterate = \
 	for i in $(shell find . -maxdepth 1 -mindepth 1 -not -path '*/\.*' -not -path './ci' -type d -printf '%f\n');do \
-		pushd $$i >> /dev/null && eval $(1) && popd >> /dev/null ;\
+		cd $$i && eval $(1) && cd - ;\
 	done
 
 # Go build targets
