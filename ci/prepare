@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Set global verbosity
+export VERBOSE=1
+
+CUR=$(pwd)
+
+# Bootstrap golang runner, because of the folder structure `go get` needs adapt
+# the paths here as needed.
+export GODIR=$GOPATH/src/github.com/quaponatech/golang-extensions
+mkdir -p "$(dirname "$GODIR")"
+mv "$(pwd -P)" "$GODIR"
+mkdir -p "$CUR"
+ln -s "$GODIR" "$CUR/build"
+cd "$GODIR" || exit
