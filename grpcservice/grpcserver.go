@@ -1,7 +1,10 @@
 package grpcservice
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net"
 
@@ -16,12 +19,10 @@ type GRPCServer struct {
 	isRunning bool
 }
 
-//NewGRPCServer initializes the server struct offering a service
-func NewGRPCServer(
-	useTLS bool, certFile string, keyFile string, port int) *GRPCServer {
-
+// NewGRPCServer initializes the server struct offering a service
+func NewGRPCServer(useTLS bool, certFile string, keyFile string, port int) *GRPCServer {
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
-	if nil != err {
+	if err != nil {
 		log.Println(err)
 		return nil
 	}
@@ -48,13 +49,50 @@ func NewGRPCServer(
 	return &GRPCServer{server: server, listener: listener, isRunning: false}
 }
 
+// NewMutualGRPCServer initializes the server struct including mutual tls auth for offering a service
+func NewMutualGRPCServer(useTLS bool, certFile string, keyFile string, caFile string, port int) *GRPCServer {
+	var opts []grpc.ServerOption
+	if useTLS {
+		// load peer cert/key, ca cert
+		peerCert, err := tls.LoadX509KeyPair(certFile, keyFile)
+		if err != nil {
+			log.Printf("GRPC server: load peer cert/key error: %v", err)
+			return nil
+		}
+		caCert, err := ioutil.ReadFile(caFile)
+		if err != nil {
+			log.Printf("GRPC server: read ca cert file error: %v", err)
+			return nil
+		}
+
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
+
+		ta := credentials.NewTLS(&tls.Config{
+			Certificates: []tls.Certificate{peerCert},
+			ClientCAs:    caCertPool,
+			ClientAuth:   tls.RequireAndVerifyClientCert,
+		})
+		opts = []grpc.ServerOption{grpc.Creds(ta)}
+	}
+
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		log.Printf("GRPC server: listen on port %d error:%v", port, err)
+		return nil
+	}
+
+	server := grpc.NewServer(opts...)
+	return &GRPCServer{server: server, listener: listener, isRunning: false}
+}
+
 // Serve registers the server as grpc server and starts it with the given listener
 func (grpcserver *GRPCServer) Serve() error {
 
-	if nil == grpcserver.server {
+	if grpcserver.server == nil {
 		return fmt.Errorf("GRPC server: Is not initialized")
 	}
-	if true == grpcserver.IsRunning() {
+	if grpcserver.IsRunning() == true {
 		return fmt.Errorf("GRPC server: Instance is already running")
 	}
 
@@ -65,11 +103,11 @@ func (grpcserver *GRPCServer) Serve() error {
 
 //Stop the grpc server
 func (grpcserver *GRPCServer) Stop() error {
-	if nil == grpcserver.server {
+	if grpcserver.server == nil {
 		return fmt.Errorf("GRPC server: Is not initialized")
 	}
 
-	if false == grpcserver.IsRunning() {
+	if grpcserver.IsRunning() == false {
 		return fmt.Errorf("GRPC server: Is not running")
 	}
 
