@@ -32,7 +32,7 @@ func TestSuiteGRPCClient(t *testing.T) {
 		// Exercise + Verify
 		tempClient := new(grpcservice.GRPCClient)
 		err := tempClient.Connect(&grpcservice.ConnectionInfo{true, "", "",
-			"localhost", fmt.Sprint(port), 10, 1, 1})
+			"localhost", fmt.Sprint(port), 10, 1, 1, "", ""})
 		test.AssertThat(t, err,
 			"tls: first record does not look like a TLS handshake",
 			"contains", err.Error())
@@ -58,7 +58,7 @@ func TestSuiteGRPCClient(t *testing.T) {
 		tempClient := new(grpcservice.GRPCClient)
 		err := tempClient.Connect(&grpcservice.ConnectionInfo{true,
 			"/var/log/not-existing", ".file",
-			"localhost", fmt.Sprint(port), 10, 0, 0})
+			"localhost", fmt.Sprint(port), 10, 0, 0, "", ""})
 		test.AssertThat(t,
 			err, "open /var/log/not-existing: no such file or directory", "streq")
 
@@ -74,7 +74,7 @@ func TestSuiteGRPCClient(t *testing.T) {
 
 		// Exercise + Verify
 		err := tempClient.Connect(&grpcservice.ConnectionInfo{false, "", "",
-			"localhost", fmt.Sprint(mainPort + portCounter), 10, 0, 0})
+			"localhost", fmt.Sprint(mainPort + portCounter), 10, 0, 0, "", ""})
 		test.AssertThat(t, err, "context deadline exceeded",
 			"contains", err.Error())
 	})
@@ -94,7 +94,7 @@ func TestSuiteGRPCClient(t *testing.T) {
 		// Exercise + Verify
 		tempClient := new(grpcservice.GRPCClient)
 		err := tempClient.Connect(&grpcservice.ConnectionInfo{false, "", "",
-			"localhost", fmt.Sprint(port), 1, 0, 0})
+			"localhost", fmt.Sprint(port), 1, 0, 0, "", ""})
 		test.AssertThat(t, err, nil)
 
 		// TearDown
@@ -119,7 +119,7 @@ func TestSuiteGRPCClient(t *testing.T) {
 
 		tempClient := new(grpcservice.GRPCClient)
 		err := tempClient.Connect(&grpcservice.ConnectionInfo{false, "", "",
-			"localhost", fmt.Sprint(port), 1, 0, 0})
+			"localhost", fmt.Sprint(port), 1, 0, 0, "", ""})
 		test.AssertThat(t, err, nil)
 
 		// Exercise + Verify
