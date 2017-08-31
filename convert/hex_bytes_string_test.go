@@ -42,7 +42,9 @@ func TestHexBytesToUpperString(t *testing.T) {
 
 	t.Run("StringConvertedInput", func(t *testing.T) {
 		hexBytes := []byte("123")
-		expectedString := "313233" // The characters of the string are interpreted as bytes, so 0 is 30, 1 is 31, and so on
+		expectedString := "313233"
+		// The characters of the string are interpreted as bytes,
+		// so 0 is 30, 1 is 31, and so on
 		test.AssertThat(t, HexBytesToUpperString(hexBytes), expectedString)
 	})
 
@@ -54,6 +56,71 @@ func TestHexBytesToUpperString(t *testing.T) {
 	t.Run("UpperCaseInput", func(t *testing.T) {
 		hexBytes := []byte{0x0A, 0x09, 0x0F}
 		test.AssertThat(t, HexBytesToUpperString(hexBytes), "0A090F")
+	})
+}
+
+func TestCharBytesToUpperString(t *testing.T) {
+
+	// Test list:
+	// ----------
+	// + EmptyInput
+	// + 4BitNumberInput
+	// + 32BitNumberInput
+	// + StringConvertedInput
+	// + LowerCaseInput
+	// + UpperCaseInput
+
+	t.Run("EmptyInput", func(t *testing.T) {
+		emptyCharBytes := []byte{}
+		actual, err := CharBytesToUpperString(emptyCharBytes)
+		test.AssertThat(t, err, "Empty string", "contains")
+		test.AssertThat(t, actual, "")
+	})
+
+	t.Run("8BitNumberInput", func(t *testing.T) {
+		charBytes := []byte{0x41, 0x42, 0x43, 0x48}
+		actual, err := CharBytesToUpperString(charBytes)
+		test.AssertThat(t, err, nil)
+		test.AssertThat(t, actual, "ABCH")
+	})
+
+	t.Run("4BitNumberInput", func(t *testing.T) {
+		charBytes := []byte{0x00, 0x1, 0x2, 0x3}
+		actual, err := CharBytesToUpperString(charBytes)
+		test.AssertThat(t, err, "Not only alphabetical characters", "contains")
+		test.AssertThat(t, actual, "")
+	})
+
+	t.Run("32BitNumberInput", func(t *testing.T) {
+		charBytes := []byte{0x0041, 0x0042, 0x0043, 0x0048}
+		expectedString := "ABCH" // It is implictly converted to 1 byte (8bit) hex numbers
+		actual, err := CharBytesToUpperString(charBytes)
+		test.AssertThat(t, err, nil)
+		test.AssertThat(t, actual, expectedString)
+	})
+
+	t.Run("StringConvertedInput", func(t *testing.T) {
+		charBytes := []byte("ABCH")
+		expectedString := "ABCH"
+		// The characters of the string are interpreted as bytes,
+		// so A is 41, B is 42, and so on
+		actual, err := CharBytesToUpperString(charBytes)
+		test.AssertThat(t, err, nil)
+		test.AssertThat(t, actual, expectedString)
+	})
+
+	t.Run("LowerCaseInput", func(t *testing.T) {
+		charBytes := []byte{0x61, 0x62, 0x63, 0x68}
+		actual, err := CharBytesToUpperString(charBytes)
+		test.AssertThat(t, err, nil)
+		test.AssertThat(t, actual, "ABCH")
+	})
+
+	t.Run("UpperCaseInput", func(t *testing.T) {
+		charBytes := []byte{0x41, 0x42, 0x43, 0x48}
+		actual, err := CharBytesToUpperString(charBytes)
+		test.AssertThat(t, err, nil)
+		test.AssertThat(t, actual, "ABCH")
 	})
 }
 

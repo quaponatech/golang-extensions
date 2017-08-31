@@ -3,6 +3,7 @@ package convert
 import (
 	"encoding/hex"
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -12,6 +13,23 @@ func HexBytesToUpperString(hexBytes []byte) string {
 		return ""
 	}
 	return strings.ToUpper(hex.EncodeToString(hexBytes))
+}
+
+// CharBytesToUpperString converts a byte array of char representations to a string
+func CharBytesToUpperString(charBytes []byte) (string, error) {
+	if len(charBytes) == 0 {
+		return "", fmt.Errorf("Empty string")
+	}
+	decoded, err := hex.DecodeString(fmt.Sprintf("%X", charBytes))
+	if err != nil {
+		return "", err
+	}
+	result := string(decoded)
+	isAlpha := regexp.MustCompile(`^[A-Za-z]+$`).MatchString
+	if !isAlpha(result) {
+		return "", fmt.Errorf("Not only alphabetical characters")
+	}
+	return strings.ToUpper(result), nil
 }
 
 // StringToHexBytes converts string to a byte array of hex numbers
