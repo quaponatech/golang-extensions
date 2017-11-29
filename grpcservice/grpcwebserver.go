@@ -45,7 +45,7 @@ func NewGRPCWebServer(useTLS bool, certFile string, keyFile string, port int) *G
 // Serve registers the server as grpc server
 func (grpcserver *GRPCWebServer) Serve() error {
 
-	if grpcserver.server == nil {
+	if grpcserver == nil || grpcserver.server == nil {
 		return fmt.Errorf("GRPCWeb server: Is not initialized")
 	}
 	if grpcserver.IsRunning() {
