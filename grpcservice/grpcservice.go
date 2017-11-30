@@ -76,7 +76,9 @@ func (g *GRPCService) Serve() error {
 			return
 		}
 	}()
-	g.StatusChan <- server.StateRunning
+	if g.StatusChan != nil {
+		g.StatusChan <- server.StateRunning
+	}
 	g.isRunning = true
 
 	for {
